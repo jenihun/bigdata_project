@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet 지도와 레이더 차트</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+        }
+
+        #radarChartContainer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- 레이더 차트를 그리는 JavaScript 코드 -->
+    <div id="radarChartContainer">
+        <canvas id="radarChart"></canvas>
+    </div>
+
+    <script>
+        var map = L.map('map').setView([37.5665, 126.9780], 5);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var myRadarChart; // 레이더 차트 객체
+
+        // Leaflet 맵의 마커 생성
+        var marker = L.marker([37.5665, 126.9780])
+            .addTo(map)
+            .bindPopup('<strong>서울</strong>')
+            .on('click', function () {
+                // 클릭한 마커에 대한 정보를 가져와 레이더 차트를 그린다.
+                showRadarChart();
+            });
+
+        // 지도 클릭 이벤트 핸들러
+        map.on('click', function (e) {
+            // 레이더 차트를 감춘다.
+            hideRadarChart();
+        });
+
+        function showRadarChart() {
+            // 예시 데이터
+            var radarData = {
+                labels: ['A', 'B', 'C', 'D', 'E'],
+                datasets: [{
+                    label: 'Data',
+                    data: [5, 3, 7, 2, 8],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            };
+
+            // 레이더 차트를 그리기
+            var ctx = document.getElementById('radarChart').getContext('2d');
+
+            // 이미 레이더 차트가 생성되어 있다면 객체를 제거하고 다시 생성
+            if (myRadarChart) {
+                myRadarChart.destroy();
+            }
+
+            myRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: radarData,
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+
+            // 레이더 차트를 보이도록 설정
+            document.getElementById('radarChartContainer').style.display = 'block';
+        }
+
+        function hideRadarChart() {
+            // 레이더 차트를 감춘다.
+            document.getElementById('radarChartContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
