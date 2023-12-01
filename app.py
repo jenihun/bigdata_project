@@ -9,8 +9,12 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    
+    #중심 좌표 설정
+    center_coordinates = [37.5665, 126.9780]
+    
     # Folium 지도 생성
-    m = folium.Map(location=[37.5665, 126.9780], zoom_start=5)
+    m = folium.Map(location=center_coordinates, zoom_start=5)
 
     # 마커 추가
     marker = folium.Marker(location=[37.5665, 126.9780], popup='<strong>서울</strong>', tooltip='Click me!')

@@ -9,11 +9,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         #map {
-            height: 400px;
+            height: 100vh;
+            width: 100vw;
         }
 
         #radarChartContainer {
             display: none;
+            position: absolute;
+            background-color: white;
+            z-index: 1000;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #chartContainer {
+            width: 300px; /* 레이더 차트를 표시할 팝업의 너비 조절 */
+            height: 300px; /* 레이더 차트를 표시할 팝업의 높이 조절 */
         }
     </style>
 </head>
@@ -22,34 +34,37 @@
 
     <!-- 레이더 차트를 그리는 JavaScript 코드 -->
     <div id="radarChartContainer">
-        <canvas id="radarChart"></canvas>
+        <div id="chartContainer">
+            <canvas id="radarChart"></canvas>
+        </div>
     </div>
 
     <script>
-        var map = L.map('map').setView([37.5665, 126.9780], 5);
+        var map = L.map('map').setView([37.5665, 126.9780], 4);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
         var myRadarChart; // 레이더 차트 객체
+        var container = document.getElementById('radarChartContainer');
+        var marker = L.marker([37.5665, 126.9780]).addTo(map);
 
-        // Leaflet 맵의 마커 생성
-        var marker = L.marker([37.5665, 126.9780])
-            .addTo(map)
-            .bindPopup('<strong>서울</strong>')
-            .on('click', function () {
-                // 클릭한 마커에 대한 정보를 가져와 레이더 차트를 그린다.
-                showRadarChart();
-            });
+        // Event handler for zoomend event
+        map.on('zoomend', function() {
+            // Get the current zoom level
+            var currentZoom = map.getZoom();
 
-        // 지도 클릭 이벤트 핸들러
-        map.on('click', function (e) {
-            // 레이더 차트를 감춘다.
-            hideRadarChart();
+            console.log('Current Zoom Level: ', currentZoom);
+
+            // Check if the zoom level is below a certain threshold
+            if (currentZoom < 3) {
+                // Set the zoom level to your desired value
+                map.setZoom(3);
+            }
         });
 
-        function showRadarChart() {
+        function showRadarChart(event) {
             // 예시 데이터
             var radarData = {
                 labels: ['A', 'B', 'C', 'D', 'E'],
@@ -83,14 +98,34 @@
                 }
             });
 
-            // 레이더 차트를 보이도록 설정
-            document.getElementById('radarChartContainer').style.display = 'block';
+            // 팝업 위치 설정
+            container.style.left = event.containerPoint.x + 'px';
+            container.style.top = event.containerPoint.y + 'px';
+
+            // 팝업 열기
+            container.style.display = 'block';
+
+            // 문서 전체에 클릭 이벤트 리스너 추가
+            document.addEventListener('click', closePopupOutside);
         }
 
-        function hideRadarChart() {
-            // 레이더 차트를 감춘다.
-            document.getElementById('radarChartContainer').style.display = 'none';
+        // 클릭 이벤트 리스너
+        function closePopupOutside(event) {
+            // 클릭한 요소가 팝업과 관련된 요소인지 확인
+            if (!container.contains(event.target) && !marker._icon.contains(event.target)) {
+                // 팝업 외부를 클릭한 경우 팝업 닫기
+                container.style.display = 'none';
+
+                // 클릭 이벤트 리스너 제거
+                document.removeEventListener('click', closePopupOutside);
+            }
         }
+
+        // 초기화면에서 팝업이 보이지 않도록 설정
+        container.style.display = 'none';
+
+        // 마커 클릭 시 레이더 차트 표시
+        marker.on('click', showRadarChart);
     </script>
 </body>
 </html>
