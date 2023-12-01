@@ -582,10 +582,27 @@ data = {
     ]
 }
 
-nation = []
+cultures = []
 
 for entry in data["nations"]:
-    nation.append(entry["nation_name"])
+    for culture in entry["culture"]:
+        cultures.append(culture)
 
-print(nation)
-print(len(nation))
+for i in range(0,len(cultures),10):
+    print(cultures[i:i+10])
+    if len(cultures) % 10 == 0:
+            print('\n')
+ 
+ 
+print("-"*50+"구분선"+"-"*50)
+ 
+foods = []
+           
+for entry in data["nations"]:
+    for food in entry["food"]:
+        foods.append(food)
+
+for i in range(0,len(foods),10):
+    print(foods[i:i+10])
+    if len(foods) % 10 == 0:
+            print('\n')
