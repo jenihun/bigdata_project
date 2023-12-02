@@ -11,12 +11,13 @@
         body {
             margin: 0;
             overflow: hidden;
+            display: flex;
         }
 
         #map {
-            flex:1;
+            flex: 1;
             height: 100vh;
-            overflow: hidden; /* 추가 */
+            overflow: hidden;
         }
 
         #sidebar {
@@ -27,34 +28,32 @@
             box-sizing: border-box;
             position: absolute;
             z-index: 9999;
-            transition: right 0.5s ease; /* Adjust the transition duration and timing function */
+            transition: right 0.5s ease;
             flex-shrink: 0;
-            right: -30vw; /* Start off-screen to the right */
+            right: -30vw;
             top: 0;
             overflow: hidden;
         }
 
-        #flag {
-            padding: 100px; /* 예시: 원하는 패딩 크기 */
-            border: 1px solid black;
-            margin: 50px auto; /* 예시: 상단과 하단에 10px, 좌우는 자동으로 가운데 정렬 */
-        }
-
-        #nationinfo {
-            padding: 100px; /* 예시: 원하는 패딩 크기 */
-            border: 1px solid black;
-            margin: 50px auto; /* 예시: 상단과 하단에 10px, 좌우는 자동으로 가운데 정렬 */
-        }
-
+        #flag,
+        #nationinfo,
         #chart {
-            padding: 30px; /* 예시: 원하는 패딩 크기 */
+            padding: 20px;
             border: 1px solid black;
-            position: relative;
-            margin: 50px auto; /* 예시: 상단과 하단에 10px, 좌우는 자동으로 가운데 정렬 */
+            margin: 20px auto;
+            box-sizing: border-box;
         }
-        #Chartcnv{
-            margin: auto;
-            display: block;
+
+        #Chartcnv {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media only screen and (max-width: 768px) {
+            #sidebar {
+                width: 100%;
+                right: -100%;
+            }
         }
     </style>
 </head>
