@@ -4,11 +4,17 @@ import urllib
 from bs4 import BeautifulSoup
 import pandas as pd
 
-# CSV 파일에서 국가 정보 읽기
+# CSV 파일에서 데이터프레임 읽기
 df = pd.read_csv('./data/country.csv')
 
+# '나라'와 'ImageURL' 열 선택
+selected_columns = ['나라']
+
+# 선택한 열을 사용하여 새로운 데이터프레임 생성
+selected_df = df[selected_columns]
+
 def get_nation_info(name):
-    for nation_name in df['나라']:
+    for nation_name in selected_df['나라']:
         if name == nation_name:
             encoded_name = quote(nation_name)  # URL에 사용 가능한 형태로 인코딩
             html2 = urlopen("https://ko.wikipedia.org/wiki/" + encoded_name)
@@ -21,24 +27,25 @@ def get_nation_info(name):
             return '\n'.join(nation_info)
 
 def get_nation_img_url(name):
-    for nation_name in df['나라']:
-        try:
-            encoded_name = quote(nation_name)  # URL에 사용 가능한 형태로 인코딩
-            html2 = urlopen("https://ko.wikipedia.org/wiki/" + encoded_name)
-            bsObject2 = BeautifulSoup(html2, "html.parser")
-            
-            # 이미지 태그를 찾는 CSS 선택자
-            img_tag = bsObject2.select_one('div.mw-parser-output img')
-            
-            # 이미지 태그가 존재하는 경우에만 URL 반환
-            if img_tag:
-                img_url = img_tag['src']
-                return img_url
-            else:
+    for nation_name in selected_df['나라']:
+        if name == nation_name:
+            try:
+                encoded_name = quote(nation_name)  # URL에 사용 가능한 형태로 인코딩
+                html2 = urlopen("https://ko.wikipedia.org/wiki/" + encoded_name)
+                bsObject2 = BeautifulSoup(html2, "html.parser")
+                
+                # 이미지 태그를 찾는 CSS 선택자
+                img_tag = bsObject2.select_one('div.mw-parser-output img')
+                
+                # 이미지 태그가 존재하는 경우에만 URL 반환
+                if img_tag:
+                    img_url = img_tag['src']
+                    return img_url
+                else:
+                    return "이미지를 찾을 수 없습니다."
+            except urllib.error.HTTPError as e:
+                print(f"HTTP Error for {nation_name}: {e}")
                 return "이미지를 찾을 수 없습니다."
-        except urllib.error.HTTPError as e:
-            print(f"HTTP Error for {nation_name}: {e}")
-            return "이미지를 찾을 수 없습니다."
 
 # # ImageURL 열만 선택하여 CSV 파일로 저장
 # df['ImageURL'] = df['나라'].apply(lambda x: get_nation_img_url(x))

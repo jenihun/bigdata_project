@@ -1,10 +1,13 @@
-from flask import Flask, render_template, jsonify, send_from_directory
-from wikipedia_data import get_nation_img_url, get_nation_info
+from flask import Flask, render_template, jsonify
+from wikipedia_data import get_nation_info, get_nation_img_url
 import json
 from urllib.parse import unquote
 import pandas as pd
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def index():
@@ -36,9 +39,7 @@ def get_country_data(encoded_country_name):
     country_name = unquote(encoded_country_name)
     
     info = get_nation_info(country_name)
-    for item in data_list:
-        if country_name == item['나라']:
-            image_url = item['ImageURL']
+    image_url = get_nation_img_url(country_name)
     
     country_data = {
         'image_url': image_url,
