@@ -12,6 +12,8 @@
 10. .
 
 <p align = center>
- <img src="https://github.com/jenihun/bigdata_project/assets/66957765/f3a872a7-6a23-402f-b575-fa4ac1eee931">
+ <img src="https://github.com/jenihun/bigdata_project/assets/66957765/f3a872a7-6a23-402f-b575-fa4ac1eee931" width="550" height="300">
  </p>
 
+플라스크 누가 만든 거임...?
+---------------------------
