@@ -225,6 +225,26 @@
                         marker.on('click', function (event) {
                             showSidebar(event, country.name, country.eng_name, countriesScore, marker);
                         });
+
+                        // 호버 이벤트 추가
+                        marker.on('mouseover', function (event) {
+                            // 마우스를 호버했을 때 정보를 표시하는 코드 추가
+                            const hoverPopupContent = `<strong>${name}</strong>`;
+                            marker.bindPopup(hoverPopupContent).openPopup();
+                        });
+
+                        // 마우스가 마커 위에서 벗어났을 때 팝업을 닫기 위한 코드
+                        marker.on('mouseout', function (event) {
+                            marker.closePopup();
+                        });
+
+                        // 팝업이 열릴 때마다 사용자 정의 데이터를 불러와서 설정
+                        marker.on('popupopen', function (event) {
+                            const markerWithData = event.popup._source; // 마커를 참조
+                            if (markerWithData.myCustomData) {
+                                markerWithData.setPopupContent(markerWithData.myCustomData.content);
+                            }
+                        });
                     });
                 })
                 .then(() => {
@@ -274,7 +294,7 @@
                 const countryData = await response.json();
                 countryNameElement.innerText = country_name;  // 국가 이름 업데이트
                 // 여기에 국기 사진, 정보 업데이트 등 다른 업데이트 코드 추가
-                flagElement.innerHTML = '<img src="' + countryData.image_url + '" alt="Flag">';
+                flagElement.innerHTML = '<img id = "flagimg"src="' + countryData.image_url + '" alt="Flag">';
                 nationInfoElement.innerHTML = '<p>' + countryData.info + '</p>';
             } catch (error) {
                 console.error('Error fetching country data:', error);

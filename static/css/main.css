@@ -84,6 +84,12 @@ Firefox 브라우저를 위해서는 -moz- 를 사용하세요 */
     cursor: pointer; /* 슬라이더 핸들에 마우스를 갖다대면 포인터로 변경 */
 }
 
+.flagimg {
+    margin: 50px auto;
+    width: 100px;
+    height: 100px;
+}
+
 
 @media only screen and (max-width: 768px) {
     #sidebar {
