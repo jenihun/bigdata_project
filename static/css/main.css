@@ -1,0 +1,54 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+#map {
+    flex: 1;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#sidebar {
+    width: 30vw;
+    height: 100vh;
+    background-color: pink;
+    padding: 20px;
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 9999;
+    transition: right 0.5s ease;
+    flex-shrink: 0;
+    right: -30vw;
+    top: 0;
+    overflow-y: auto; /* 세로 스크롤을 허용하도록 추가 */
+    max-height: 100vh; /* 최대 높이 지정하여 전체 화면 크기를 초과하지 않도록 설정 */
+}
+
+#flag,
+#nationinfo,
+#chart {
+    padding: 20px;
+    border: 1px solid black;
+    margin: 50px auto;
+}
+
+#chart {
+    /* 기존 스타일 유지 */
+    max-height: calc(100vh - 140px); /* 적절한 높이로 조절 (국가 정보, 차트 버튼 등의 높이를 고려하여 조절) */
+    overflow-y: auto; /* 세로 스크롤을 허용하도록 추가 */
+}
+
+#Chartcnv {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+}
+
+@media only screen and (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+        right: -100%;
+    }
+}

@@ -52,19 +52,3 @@ countries = [
     'Uruguay', 'Paraguay', 'Chile', 'Puerto Rico', 'Cuba',
     'Suriname', 'Venezuela'
 ]
-
-
-# all_countries_data = []
-
-# for country in countries:
-#     result = get_lat_lon_from_country(country)
-#     if result:
-#         all_countries_data.append(result)
-
-# # Save all data to a single JSON file with ensure_ascii set to False
-# filename = 'all_countries_data.json'
-# with open(filename, 'w', encoding='utf-8') as json_file:
-#     json.dump(all_countries_data, json_file, indent=2, ensure_ascii=False)
-
-# print(f"All countries data saved to {filename}")
-    

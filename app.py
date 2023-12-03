@@ -13,12 +13,19 @@ CORS(app)
 def index():
     return render_template('index.html')
 
-# JSON 파일을 읽어오는 엔드포인트 추가
+# 각 나라의 좌표 정보를 가져옴
 @app.route('/get_countries_data')
 def get_countries_data():
     with open('./data/all_countries_data.json', 'r', encoding='utf-8') as json_file:
         countries_data = json.load(json_file)
     return jsonify(countries_data)
+
+# 각 년, 월별 나라의 데이터를 불러옴
+@app.route('/get_countries_score_year_and_month')
+def get_countrieds_score_year_and_month():
+    with open('./data/final_akatuski_scores.json', 'r', encoding='utf-8') as json_file:
+        coutries_score = json.load(json_file)
+    return jsonify(coutries_score)
 
 # CSV 파일에서 데이터프레임 읽기
 df = pd.read_csv('./data/country.csv')
@@ -47,6 +54,8 @@ def get_country_data(encoded_country_name):
     }
     
     return jsonify(country_data)
+
+
     
 if __name__ == '__main__':
     app.run(debug=True)

@@ -8,62 +8,8 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            display: flex;
-        }
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
 
-        #map {
-            flex: 1;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #sidebar {
-            width: 30vw;
-            height: 100vh;
-            background-color: pink;
-            padding: 20px;
-            box-sizing: border-box;
-            position: absolute;
-            z-index: 9999;
-            transition: right 0.5s ease;
-            flex-shrink: 0;
-            right: -30vw;
-            top: 0;
-            overflow-y: auto; /* 세로 스크롤을 허용하도록 추가 */
-            max-height: 100vh; /* 최대 높이 지정하여 전체 화면 크기를 초과하지 않도록 설정 */
-        }
-
-        #flag,
-        #nationinfo,
-        #chart {
-            padding: 20px;
-            border: 1px solid black;
-            margin: 50px auto;
-        }
-
-        #chart {
-            /* 기존 스타일 유지 */
-            max-height: calc(100vh - 140px); /* 적절한 높이로 조절 (국가 정보, 차트 버튼 등의 높이를 고려하여 조절) */
-            overflow-y: auto; /* 세로 스크롤을 허용하도록 추가 */
-        }
-
-        #Chartcnv {
-            margin: auto;
-            width: 100%;
-            height: 100%;
-        }
-
-        @media only screen and (max-width: 768px) {
-            #sidebar {
-                width: 100%;
-                right: -100%;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -72,15 +18,11 @@
 
     <div id="sidebar">
         <!-- 사이드바 내용은 여기에 들어갑니다 -->
-        <h2 id="countryName">대한 민국</h2>
+        <h2 id="countryName"></h2>
 
         <div id="flag">
-            <p>국기 사진</p>
         </div>
         <div id="nationinfo">
-            <p>
-                대한민국의 정보
-            </p>
         </div>
         <h2> 차트들... </h2>
         <div id="chart">
@@ -93,216 +35,11 @@
         </div>
     </div>
 
-    <script>
-        var chartTypeIndex = 0; // 현재 차트 인덱스
+    <!-- Flask에서 제공하는 방식 -->
+    <script src="{{ url_for('static', filename='js/main_script.js') }}"></script>
 
-        var chartIndex = 0;
-
-        var chartDataList = [
-            // 차트 데이터 배열. 필요한 만큼 추가하세요.
-            {
-                labels: ['경제', '교통', '가격', '문화', '음식'],
-                datasets: [{
-                    label: '점수',
-                    data: [5, 3, 7, 2, 8],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2
-                }]
-            },
-            // 다른 차트 데이터 배열 추가 가능
-        ];
-        
-        // chart 타입
-        var chartTypes = [
-            'line',          // 선 그래프
-            'bar',           // 막대 그래프
-            'radar',         // 레이더 차트
-            // 'doughnut',      // 도넛 차트
-            'polarArea',     // 극지 차트
-            // 'bubble',        // 버블 차트
-            // 'scatter',       // 산점도 차트
-            // 'pie',           // 파이 차트
-        ];
-
-        // map 객체
-        var map = L.map('map').setView([26.73942742009539, 29.932013370889234], 3);
-        
-        //이거 추가 안하면 맵 못씀
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // 차트 참조 변수
-        var chartInstance;
-
-        var container = document.getElementById('chart');
-        var sidebar = document.getElementById('sidebar');
-
-        map.on('zoomend', function() {
-            var currentZoom = map.getZoom();
-
-            console.log('Current Zoom Level: ', currentZoom);
-
-            if (currentZoom < 3) {
-                map.setZoom(3);
-            }
-        });
-
-        function DrawChart(data) {
-
-            var ctx = document.getElementById('Chartcnv').getContext('2d');
-
-            if (chartInstance) {
-                // 이전 차트가 존재하면 파괴
-                chartInstance.destroy();
-            }
-            
-            // 차트 생성자
-            chartInstance = new Chart(ctx, {
-                type: chartTypes[chartTypeIndex], // 수정된 부분
-                data: data,
-                options: {
-                    maintainAspectRatio: false,
-                    responsive: false,
-                    width: 150,
-                    height: 150,
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 10
-                        }
-                    }
-                }
-            });
-        }
-
-        // 클라이언트 측에서 JSON 데이터를 가져오는 함수
-        function getCountriesData() {
-            return fetch('/get_countries_data')
-                .then(response => response.json())
-                .catch(error => console.error('Error fetching countries data:', error));
-        }
-        
-        var markers = []; // 전역으로 이동
-
-        function addMarkersForCountries() {
-            getCountriesData()
-                .then(countriesData => {
-                    markers = []; // 초기화
-                    countriesData.forEach(country => {
-                        var countryMarker = L.marker([country.lat, country.lng]).addTo(map);
-                        // 클로저를 사용하여 국가 정보를 캡처
-                        countryMarker.on('click', function (event) {
-                            showSidebar(event, country, countryMarker);
-                            closeSidebarOutside(event);
-                        });
-                        countryMarker.bindPopup("<b>" + country.name + "</b><br>" + country.info);
-                        markers.push(countryMarker);
-                    });
-                    // 만든 마커를 외부에서 사용할 수 있도록 반환 또는 다른 함수에 전달
-                    return markers;
-                })
-                .then(markers => {
-                    // 이제 markers 배열에 모든 마커가 들어있습니다.
-                    console.log(markers);
-                });
-        }
-
-        document.addEventListener('DOMContentLoaded', addMarkersForCountries);
-
-        // showSidebar 함수를 비동기 함수로 변경
-        async function showSidebar(event, country, marker) {
-            document.addEventListener('click', closeSidebarOutside);
-
-            // 해당하는 국가의 그래프
-            await DrawChart(chartDataList[chartIndex]);
-
-            // 나머지 국가 정보를 사이드바에 추가
-            await updateSidebar(country);
-
-            // map 동작 제어
-            map.dragging.disable();
-            map.touchZoom.disable();
-            map.doubleClickZoom.disable();
-            map.scrollWheelZoom.disable();
-
-            // 사이드바를 나타나게 설정
-            sidebar.style.right = '0';
-            sidebar.style.display = 'inline';
-        }
-
-        // updateSidebar 함수를 비동기 함수로 변경
-        async function updateSidebar(country) {
-            var countryNameElement = document.getElementById('countryName');
-            var flagElement = document.getElementById('flag');
-            var nationInfoElement = document.getElementById('nationinfo');
-
-            try {
-                // AJAX를 이용하여 Flask 엔드포인트에 요청
-                const response = await fetch('/get_country_data/' + country.name);
-                const countryData = await response.json();
-
-                countryNameElement.innerText = country.name;  // 국가 이름 업데이트
-                // 여기에 국기 사진, 정보 업데이트 등 다른 업데이트 코드 추가
-                flagElement.innerHTML = '<img src="' + countryData.image_url + '" alt="Flag">';
-                nationInfoElement.innerHTML = '<p>' + countryData.info + '</p>';
-            } catch (error) {
-                console.error('Error fetching country data:', error);
-            }
-        }
-        
-        
-        function closeSidebarOutside(event) {
-            // event.target이 노드인지 확인
-            if (!(event.target instanceof Node)) {
-                return;
-            }
-        
-            // markers 배열에 대한 순회
-            for (let i = 0; i < markers.length; i++) {
-                // 각 마커에 대해 클릭된 지점이 포함되어 있는지 확인
-                if (markers[i]._icon && markers[i]._icon.contains && markers[i]._icon.contains(event.target)) {
-                    // 클릭된 지점이 마커에 속한 경우 함수를 종료하고 리턴
-                    return;
-                }
-            }
-        
-            // 클릭된 지점이 어떠한 마커에도 속하지 않으면 사이드바를 닫습니다.
-            closeSidebar();
-        }
-
-        function closeSidebar() {
-            // 맵 상호작용 초기화
-            map.dragging.enable();
-            map.touchZoom.enable();
-            map.doubleClickZoom.enable();
-            map.scrollWheelZoom.enable();
-        
-            // 사이드바 숨기기
-            sidebar.style.right = '-30vw';
-        
-            // 사이드바 외부를 클릭하여 닫는 이벤트 리스너 제거
-            document.removeEventListener('click', closeSidebarOutside);
-        }
-
-        // 다음 버튼 클릭 시 발생하는 함수
-        document.getElementById('nextbtn').addEventListener('click', function () {
-            if (chartTypeIndex < chartTypes.length - 1) {
-                chartTypeIndex++;
-                DrawChart(chartDataList[0]);
-            }
-        });
-
-        // 이전 버튼 클릭 시 발생하는 함수
-        document.getElementById('beforebtn').addEventListener('click', function () {
-            if (chartTypeIndex > 0) {
-                chartTypeIndex--;
-                DrawChart(chartDataList[0]);
-            }
-        });
-
-    </script>
 </body>
 
 </html>
+
+<!-- <img src="{{ url_for('static', filename='images/page_logo.png') }}" alt="Team Logo" /> -->
