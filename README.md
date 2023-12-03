@@ -11,7 +11,7 @@
 9. .
 10. .
 
-<p>
+<p align:center>
  <img src="https://github.com/jenihun/bigdata_project/assets/66957765/f3a872a7-6a23-402f-b575-fa4ac1eee931">
  </p>
 
