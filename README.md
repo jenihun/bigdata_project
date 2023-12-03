@@ -12,8 +12,6 @@
 10. .
 
 <p>
- <img src="https://github.com/jenihun/bigdata_project/assets/66957765/23e00ca7-6d16-42e9-957f-a5c0457d0d3a">
+ <img src="https://github.com/jenihun/bigdata_project/assets/66957765/f3a872a7-6a23-402f-b575-fa4ac1eee931">
  </p>
- <p>
- <img src="https://github.com/jenihun/bigdata_project/assets/66957765/1e2f8c5e-3ad1-4fdc-b720-f68ad14e30d2">
- </p>
+
