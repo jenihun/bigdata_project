@@ -1,23 +1,5 @@
 //main화면에 대한 js
 
-        var chartTypeIndex = 0; // 현재 차트 인덱스
-
-        var eng_name_param; // 영어 이름을 저장할 변수
-
-        var countriesScore; // 전역에서 선언
-        
-        // chart 타입
-        var chartTypes = [
-            'line',          // 선 그래프
-            'bar',           // 막대 그래프
-            'radar',         // 레이더 차트
-            // 'doughnut',      // 도넛 차트
-            'polarArea',     // 극지 차트
-            // 'bubble',        // 버블 차트
-            // 'scatter',       // 산점도 차트
-            // 'pie',           // 파이 차트
-        ];
-
         // 년월 리스트
         var yearMonths = [
             "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06",
@@ -40,8 +22,77 @@
             "2023-07", "2023-08", "2023-09"
         ]
 
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("value");
+        // 초기화
+        output.innerHTML = yearMonths[slider.value];
+
+        // 슬라이더 값 변경 시 이벤트 처리
+        slider.oninput = async function () {
+            currentyear = yearMonths[this.value];
+            output.innerHTML = currentyear
+
+            // 데이터 다시 불러오기
+            await addMarkersForCountries();
+
+            // 차트 다시 그리기
+            await DrawChart(currentyear, eng_name_param, countriesScore);
+        };
+
         // 현재 년월
         var currentyear = yearMonths[0];
+
+        var chartTypeIndex = 0; // 현재 차트 인덱스
+
+        var eng_name_param; // 영어 이름을 저장할 변수
+
+        var countriesScore; // 전역에서 선언
+        
+        // chart 타입
+        var chartTypes = [
+            'line',          // 선 그래프
+            'bar',           // 막대 그래프
+            'radar',         // 레이더 차트
+            'polarArea',     // 극지 차트
+            // 'doughnut',      // 도넛 차트
+            // 'bubble',        // 버블 차트
+            // 'scatter',       // 산점도 차트
+            // 'pie',           // 파이 차트
+        ];
+
+        // 여러 개의 사용자 정의 아이콘 정의
+        const customIcons = {
+            icon1: L.icon({
+                iconUrl: '/static/images/total20.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            icon2: L.icon({
+                iconUrl: '/static/images/total40.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            icon3: L.icon({
+                iconUrl: '/static/images/total60.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            icon4: L.icon({
+                iconUrl: '/static/images/total80.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            icon5: L.icon({
+                iconUrl: '/static/images/total20.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+        };
 
         // 년, 월 스코어를 가지고 옴
         function get_countries_score_year_and_month() {
@@ -74,11 +125,8 @@
             }
         });
 
-
-
-
-        function DrawChart(currentyear, eng_name, countriesScore) {
-
+        
+        async function DrawChart(currentyear, eng_name, countriesScore) {
             var data = {
                 labels: ['경제', '안전', '교통', '가격', '음식'],
                 datasets: [{
@@ -95,14 +143,14 @@
                     borderWidth: 2
                 }]
             };
-
+        
             var ctx = document.getElementById('Chartcnv').getContext('2d');
-
+        
+            // 이전 차트가 존재하면 파괴
             if (chartInstance) {
-                // 이전 차트가 존재하면 파괴
-                chartInstance.destroy();
+                await chartInstance.destroy();
             }
-            
+        
             // 차트 생성자
             chartInstance = new Chart(ctx, {
                 type: chartTypes[chartTypeIndex], // 수정된 부분
@@ -135,16 +183,44 @@
             Promise.all([getCountriesData(), get_countries_score_year_and_month()])
                 .then(([countriesData, scores]) => {
                     countriesScore = scores; // 전역 변수에 할당
+                    markers.forEach(marker => marker.remove()); // 이전 마커 제거
                     markers = []; // 마커 초기화
+
                     countriesData.forEach(country => {
                         // 국가의 위도와 경도 속성이 있다고 가정합니다.
                         const lat = country.lat;
                         const lng = country.lng;
-        
+                        
+                        const name = country.name;
+                        const engname = country.eng_name;
+
+                        // 국가에 따라 아이콘 선택
+                        let icon;
+
+                        if(countriesScore[currentyear][engname]['total'] == 100){
+                            icon = customIcons.icon5;
+                        }
+                        else if (countriesScore[currentyear][engname]['total'] >= 80) {
+                            icon = customIcons.icon4;
+                        } else if (countriesScore[currentyear][engname]['total'] >= 60) {
+                            icon = customIcons.icon3;
+                        } else if (countriesScore[currentyear][engname]['total'] >= 40) {
+                            icon = customIcons.icon2;
+                        } else {
+                            icon = customIcons.icon1;
+                        }
+
                         // Leaflet 마커 생성
-                        const marker = L.marker([lat, lng]).addTo(map);
+                        const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+
+                        // 오류 코드
+                        const popupContent =
+                                            `<strong style="text-align: center;">여행 지수: ${countriesScore[currentyear][engname]['total']}</strong>`;
+
+                        marker.bindPopup(popupContent);
+                        
                         markers.push(marker); // 생성된 마커를 markers 배열에 추가
-        
+
                         // 클릭 이벤트 추가
                         marker.on('click', function (event) {
                             showSidebar(event, country.name, country.eng_name, countriesScore, marker);
@@ -158,7 +234,7 @@
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
-        }
+            }
 
         document.addEventListener('DOMContentLoaded', addMarkersForCountries);
 
@@ -212,8 +288,12 @@
                 return;
             }
         
-            // 만약 버튼을 클릭한 경우 함수를 종료하고 리턴
-            if (event.target.id === 'nextbtn' || event.target.id === 'beforebtn') {
+            // 만약 버튼이나 슬라이더를 클릭한 경우 함수를 종료하고 리턴
+            if (
+                event.target.id === 'nextbtn' ||
+                event.target.id === 'beforebtn' ||
+                event.target.id === 'myRange' // 슬라이더 클릭인 경우 추가
+            ) {
                 return;
             }
         
