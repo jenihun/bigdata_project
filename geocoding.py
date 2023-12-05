@@ -3,7 +3,7 @@ import googlemaps
 
 def get_lat_lon_from_country(country_name):
     # Initialize the Google Maps API client
-    gmaps = googlemaps.Client(key='AIzaSyDMamPU-7XvWudTvCJwjb27mk1_uL7R6T8')
+    gmaps = googlemaps.Client(key='API키 입력')
 
     # Geocode the country
     geocode_result = gmaps.geocode(country_name, language='ko')
